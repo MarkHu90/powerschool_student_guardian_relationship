@@ -287,8 +287,12 @@ function relationshipToInput(value) {
 	back.onclick = relationshipToSelect;
 
 	var parent = sel.parentNode;
-	parent.insertBefore(back, sel.nextSibling);
+	// Insert input first, then the back arrow after it. Calling
+	// parent.insertBefore(X, sel.nextSibling) twice in a row with the same
+	// reference would otherwise land the FIRST insert (back) to the LEFT of the
+	// SECOND insert (input), putting the ↺ icon before the text box.
 	parent.insertBefore(input, sel.nextSibling);
+	parent.insertBefore(back, input.nextSibling);
 	input.focus();
 }
 
@@ -324,10 +328,20 @@ function toggleLiveWithDetails() {
 	}
 }
 
+function normalizeStoredValue(value) {
+	if (value === null || value === undefined) { return ''; }
+	return String(value)
+		.replace(/&nbsp;/ig, '')
+		.replace(/\u00a0/g, '')
+		.replace(/\s+/g, ' ')
+		.trim();
+}
+
 $j(document).ready(function () {
-	// PowerSchool emits "&nbsp;" for an empty [01] custom field, so normalize
-	// before deciding what (if anything) to pre-fill.
-	var storedRel = ("~([01]Relationship)").replace(/&nbsp;/ig, "").trim();
+	// Read the rendered cell text instead of relying on macro expansion inside JS.
+	// When the field is empty PowerSchool may emit whitespace or non-breaking spaces.
+	var relCell = document.getElementById('lockRelationship');
+	var storedRel = normalizeStoredValue(relCell ? (relCell.textContent || relCell.innerText || '') : '');
 	var relSel = document.getElementById('relationship');
 	var relMirror = document.getElementById('relationshipMirror');
 	var relMainOptions = ["父母 Father and Mother", "父亲 Father", "母亲 Mother"];
