@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin
+	version="1.0.0"
+	xmlns="http://plugin.powerschool.pearson.com"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	name="Student and Guardian Relationship"
+	description="Manages the relationship between students and their guardians"
+	xsi:schemaLocation="http://plugin.powerschool.pearson.com plugin.xsd"
+>
+	<oauth></oauth>
+	<access_request>
+		<field table="u_student_guardian_relation" field="id" access="FullAccess" />
+	</access_request>
+
+	<publisher name="Mark Hu">
+		<contact email="mark.hu@ykpaoschool.cn"/>
+	</publisher>
+</plugin>

@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html>
+
+<!--YOU NEED TO PUT THE IDS ON THE OTHER FIELDS!-->
+<!--Use this htlm to when it is re-enrollment time. Change the title of "parentdemographics.html" to another name... save it, and than change this html to "parentdemographics.html"-->
+
+<head>
+~[if#1.pref.demographic~(curschoolid)=1]
+	~[redirect:/guardian/home_not_available.html]
+[else#1]
+	~[if#1a.isguardianAndSSOEnabled]
+	~[if#2.~([Students]allowwebaccess)=0]
+	~[redirect:/guardian/home_not_available.html]
+	[/if#2]
+	[/if#1a]
+[/if#1]
+~[if.~([Students]enabledemoupdate)=1][else]~[redirect:/guardian/home_not_available.html][/if]
+
+<script type="text/javascript" src="countries.js"></script>
+<script type="text/javascript" src="validate.js"></script>
+<script type="text/javascript" src="/admin/javascript/parentdemo.js"></script>
+<SCRIPT LANGUAGE="JavaScript">
+
+function setParentVerified() {
+//no need to approve manually
+//document.getElementById("parentverified").value='1';
+var father = $j('.slock53').val();;
+var mother = $j('.slock54').val();;
+var email = father+ "," + mother;
+
+document.getElementById("guardianemail").value=email;
+}
+
+
+//Checks for data in client side fields. Also checks for people trying to enter blank spaces
+//Shows a color on the right side for any data not coming from PowerSchool
+//The script can handle accidental blank spaces
+
+function checkFilled() {
+    var rn = true;
+    // rn stands for return value
+    // $j('.slock').each(function(){
+    // 	var temp = $j(this).html().trim().replace(/&nbsp;/ig, "");
+    // 	var tempid = $j(this).attr('id');
+    //     var list = ['subId18','lock32','lock33','lock34','lock35','subId12'];
+    // 	if (temp==""){
+    // 		if($j('.s'+tempid).val()==""){
+    //             if($j('#ckp4').is(':checked')){
+    //                 $j('.s'+tempid).css("border-color","red")
+    // 		        rn = false
+    //             } else {
+    //                 var idx = list.indexOf(tempid);
+    //                 if(idx < 0) {
+    //                     if($j('.s'+tempid).val()=="" || $j('.s'+tempid).val()==undefined){
+    //                         $j('.s'+tempid).css("border-color","red")
+    // 		                rn = false
+    //                     } else {
+    //                         $j('.s'+tempid).css("border-color","black")
+    //                         rn = true
+    //                     }
+    //                 }                    
+    //             }
+    		    
+    // 		}else{
+    // 		    $j('.s'+tempid).css("border-color","black")
+    // 		}
+    // 	}
+    // })
+    
+    var resList = ['subId28','lock55','lock56','lock57','lock58','lock59','subId29','subId30'];
+	var regList = ['subId18','lock32','lock33','lock34','lock35','subId12'];
+    
+    //if($j('#ckp4').is(':checked')){
+    if($j('#regAddressHave option:selected').val() =="Yes 有"){
+        var c = resList.concat(regList);
+        for(let key in c){
+            var temp = $j('.s'+c[key]).html().trim().replace(/&nbsp;/ig, "");
+            
+            if(temp ==""){
+                if($j('.s'+c[key]).val()==""){
+                    $j('.s'+c[key]).css("border-color","red")
+        	        rn = false
+                } else{
+                    $j('.s'+c[key]).css("border-color","black")
+                }
+            }
+        }
+    } else {
+        for(let i in resList){
+            var temp = $j('.s'+resList[i]).html().trim().replace(/&nbsp;/ig, "");
+            if(temp==""){
+                if($j('.s'+resList[i]).val()==""){
+                    $j('.s'+resList[i]).css("border-color","red")
+        	        rn = false
+                } else{
+                    $j('.s'+resList[i]).css("border-color","black")
+                }
+            }
+        }
+    }
+    
+    if($j('#qr1:checked').val()==undefined||$j('#qr1:checked').val()==null){
+        rn = false
+    }
+    if(!rn){
+    alert("Please entring all required information. 请填写完整信息。")
+    }
+    
+    return rn;
+}
+
+</SCRIPT>
+
+<!--EDITING starts here -->
+
+<!-- <title>Re-enrollment & Demographic Update</title> -->
+<title>Demographic Update</title>
+
+~[wc:guardian_header]
+
+<script>
+$j(document).ready(function(){
+    
+    $j('.slock').each(function(){
+		var temp = $j(this).html().trim().replace(/&nbsp;/ig, "");
+		var tempid = $j(this).attr('id');
+		if (temp==""){
+		    if($j('.s'+tempid).val()==""){
+		        if(tempid == "lock16" || tempid == "lock17" || tempid == "lock28" || tempid == "lock29") {
+		            $j('.s'+tempid).css("border-color","black");
+		        } else {
+		            $j('.s'+tempid).css("border-color","red");
+		        }
+		    }
+		}
+	})
+	
+	var option_str = document.getElementById("regAddressHave");  
+    
+    var idx = option_str.selectedIndex;
+    if(idx == 1){
+        $j("table tr[group='1']").show();
+    } else {
+        $j("table tr[group='1']").hide();
+    }
+    
+    
+    $j("#district5 option[value='~([01]parent_Registration_District)']").attr("selected", true);
+	$j("#country option[value='~([01]parent_Registration_Country)']").attr("selected", true);
+    
+	$j("#district6 option[value='~([01]parent_Residential_District)']").attr("selected", true);
+	$j("#rescountry option[value='~([01]parent_Residential_Country)']").attr("selected", true);
+	
+	//mother info
+	$j("#country0 option[value='~([01]parent_mother_birthplace)']").attr("selected", true);
+	$j("#lang0 option[value='~([01]parent_Mother_Language)']").attr("selected", true);
+	$j("#occstatus0 option[value='~([01]parent_Mother_Occ_Status)']").attr("selected", true);
+	$j("#positioncat0 option[value='~([01]parent_Mother_Position_Cat)']").attr("selected", true);
+	$j("#district0 option[value='~([1]parent_mother_co_place_of_reg)']").attr("selected", true);
+	$j("#district1 option[value='~([1]parent_mother_office_location)']").attr("selected", true);
+	$j("#degree0 option[value='~([01]parent_mother_degree)']").attr("selected", true);
+	
+	
+	//father info
+	$j("#country1 option[value='~([01]parent_father_birthplace)']").attr("selected", true);
+	$j("#lang1 option[value='~([01]parent_Father_Language)']").attr("selected", true);
+	$j("#occstatus1 option[value='~([01]parent_Father_Occ_Status)']").attr("selected", true);
+	$j("#positioncat1 option[value='~([01]parent_Father_Position_Cat)']").attr("selected", true);
+	$j("#district3 option[value='~([1]parent_father_co_place_of_reg)']").attr("selected", true);
+	$j("#district4 option[value='~([1]parent_father_office_location)']").attr("selected", true);
+	$j("#degree1 option[value='~([01]parent_father_degree)']").attr("selected", true);
+	
+	$j("table tr[group='1']").hide();
+})
+
+ function checksub(){
+     if($j('#ckp1').is(':checked')&&$j('#ckp2').is(':checked')&&$j('#ckp3').is(':checked')&&$j('#radioschool:checked').val()) {
+         $j('#submitdis1').attr("disabled",false);
+          $j('.submittip').hide()
+     }else{
+         $j('#submitdis1').attr("disabled",true);
+          $j('.submittip').show()
+     }
+ }
+ 
+ function displayRegAddress(){
+    //first version using checkbox to display Registration Address
+    //  var divRegAct = document.getElementById("divAddressAct");
+
+    //  if($j('#ckp4').is(':checked')){
+    //      if(divRegAct.style.display = "none"){
+    //         divRegAct.style.display = "table-row";
+    //      } else {
+    //         divRegAct.style.display = "none";
+    //      }
+    //      $j("table tr[group='1']").show();
+    //  } else {
+    //      $j("table tr[group='1']").hide();
+    //      divRegAct.style.display = "none";
+    //  }
+     
+     var option_str = document.getElementById("regAddressHave");
+    
+     var idx = option_str.selectedIndex;
+     if(idx == 1){
+         $j("table tr[group='1']").show();
+     } else {
+         $j("table tr[group='1']").hide();
+     }
+ }
+ 
+ function copyAddress(){
+     if($j('#ckHave').is(':checked')){
+         var resAddr = $j('.ssubId28').value;
+         $j('.ssubId18').val(resAddr);
+     }
+     
+     
+     
+ }
+ 
+</script>
+
+
+
+<!-- <h1><font face="Helvetica"</font><center>Re-enrollment & Demographic Information Update</center></h1> -->
+<!-- Guardian–Student Relationship: select with an inline "Other" -> text-input swap.
+     Only one element (the <select> OR the <input>) ever carries class="slockRelationship"
+     and name="[01]Relationship", so the existing checkFilled() validation and the
+     PowerSchool save behaviour are preserved unchanged. -->
+<script>
+// Saved clone of the <select> so we can restore it when the user switches back from input mode.
+var $relationshipSelectClone = null;
+
+function onRelationshipChange() {
+	var sel = document.getElementById('relationship');
+	if (!sel || sel.tagName !== 'SELECT') { return; }
+	if (sel.value === 'Other') {
+		relationshipToInput('');
+	} else {
+		// User picked one of the three preset options or cleared the field.
+		// Select is the active control -> disable the hidden mirror so its value isn't submitted.
+		var mirror = document.getElementById('relationshipMirror');
+		if (mirror) { mirror.disabled = true; mirror.value = ''; }
+	}
+}
+
+function relationshipToInput(value) {
+	var sel = document.getElementById('relationship');
+	if (!sel || sel.tagName !== 'SELECT') { return; }   // no select -> nothing to swap from
+
+	// Remove any pre-existing dynamic input/back arrow (idempotent re-entry).
+	var existingInput = document.getElementById('relationshipInput');
+	var existingBack = document.getElementById('relationshipBack');
+	if (existingInput && existingInput.parentNode) { existingInput.parentNode.removeChild(existingInput); }
+	if (existingBack && existingBack.parentNode) { existingBack.parentNode.removeChild(existingBack); }
+
+	// Disable the select so its value is NOT submitted, and enable the hidden mirror so its value IS.
+	sel.disabled = true;
+	sel.style.display = 'none';
+	var mirror = document.getElementById('relationshipMirror');
+	if (mirror) { mirror.disabled = false; mirror.value = value || ''; }
+
+	// Build the dynamic text input (no name — the hidden mirror carries the form value).
+	var input = document.createElement('input');
+	input.type = 'text';
+	input.id = 'relationshipInput';
+	input.className = 'slockRelationship';
+	input.size = '30';
+	if (value) { input.value = value; }
+
+	// Mirror the user's typing into the hidden field in real time.
+	input.addEventListener('input', function () {
+		var m = document.getElementById('relationshipMirror');
+		if (m) { m.value = input.value; }
+	});
+
+	var back = document.createElement('a');
+	back.href = 'javascript:void(0)';
+	back.id = 'relationshipBack';
+	back.title = '切换回下拉选项';
+	back.style.marginLeft = '15px';
+	back.style.textDecoration = 'none';
+	back.style.fontSize = '20px';
+	back.style.verticalAlign = 'middle';
+	back.appendChild(document.createTextNode('↺'));
+	back.onclick = relationshipToSelect;
+
+	var parent = sel.parentNode;
+	parent.insertBefore(back, sel.nextSibling);
+	parent.insertBefore(input, sel.nextSibling);
+	input.focus();
+}
+
+function relationshipToSelect() {
+	var input = document.getElementById('relationshipInput');
+	var back = document.getElementById('relationshipBack');
+	var sel = document.getElementById('relationship');
+
+	if (input && input.parentNode) { input.parentNode.removeChild(input); }
+	if (back && back.parentNode) { back.parentNode.removeChild(back); }
+
+	if (sel) {
+		sel.disabled = false;
+		sel.style.display = '';
+		sel.value = '';                                  // force user to pick again from the dropdown
+	}
+	// Select is now the active control again -> disable the mirror.
+	var mirror = document.getElementById('relationshipMirror');
+	if (mirror) { mirror.disabled = true; mirror.value = ''; }
+}
+
+// Show "Live With Details" only when "No 否" is selected; hide + clear it otherwise.
+function toggleLiveWithDetails() {
+	var sel = document.getElementById('liveWith');
+	var detailsRow = document.getElementById('liveWithDetailsRow');
+	if (!sel || !detailsRow) { return; }
+	if (sel.value === 'No 否') {
+		detailsRow.style.display = '';
+	} else {
+		detailsRow.style.display = 'none';
+		var detailsInput = document.getElementById('liveWithDetails');
+		if (detailsInput) { detailsInput.value = ''; }   // switching away from "No" clears stale details
+	}
+}
+
+$j(document).ready(function () {
+	// PowerSchool emits "&nbsp;" for an empty [01] custom field, so normalize
+	// before deciding what (if anything) to pre-fill.
+	var storedRel = ("~([01]Relationship)").replace(/&nbsp;/ig, "").trim();
+	var relSel = document.getElementById('relationship');
+	var relMirror = document.getElementById('relationshipMirror');
+	var relMainOptions = ["父母 Father and Mother", "父亲 Father", "母亲 Mother"];
+	var relIsMainOption = (relMainOptions.indexOf(storedRel) !== -1);
+	// Show the dropdown when the stored value is empty (initial state) OR matches
+	// one of the 3 main options. Only show the text input when a value exists AND
+	// it is NOT one of the 3 main options — meaning the user previously picked
+	// "Other" and typed custom content, which we want to preserve as-is.
+	var showDropdown = (storedRel === '') || relIsMainOption;
+
+	if (relSel) {
+		// Pre-select whichever option matches (helps if the user clicks ↺ later).
+		for (var i = 0; i < relSel.options.length; i++) {
+			if (relSel.options[i].value === storedRel) {
+				relSel.options[i].selected = true;
+				break;
+			}
+		}
+	}
+
+	if (showDropdown) {
+		// Empty value or one of the 3 preset options -> show dropdown,
+		// disable mirror (select is the active control).
+		if (relSel) { relSel.disabled = false; relSel.style.display = ''; }
+		if (relMirror) { relMirror.disabled = true; relMirror.value = ''; }
+	} else {
+		// Stored value is something custom (e.g. user typed "叔叔 Uncle" via the
+		// "Other" branch and saved) -> show the dynamic input pre-filled with it.
+		// relationshipToInput will disable the select and enable the mirror.
+		relationshipToInput(storedRel);
+	}
+
+	// Live With: pre-select the stored string value; set the Details row visibility to match.
+	var storedLiveWith = ("~([01]Live_With_Guardian)").replace(/&nbsp;/ig, "").trim();
+	var lwSel = document.getElementById('liveWith');
+	var lwDetailsRow = document.getElementById('liveWithDetailsRow');
+	if (lwSel) {
+		var lwMatched = false;
+		for (var j = 0; j < lwSel.options.length; j++) {
+			if (lwSel.options[j].value === storedLiveWith) {
+				lwSel.options[j].selected = true;
+				lwMatched = true;
+				break;
+			}
+		}
+		// explicit value assignment guarantees lwSel.value reflects the stored option
+		if (lwMatched) { lwSel.value = storedLiveWith; }
+	}
+	if (lwSel && lwDetailsRow) {
+		lwDetailsRow.style.display = (lwSel.value === 'No 否') ? '' : 'none';
+	}
+
+	// Safety net (final-state check): if anything earlier left the UI inconsistent,
+	// correct it now so the page reflects the stored values. Only flip to input
+	// mode when the stored value indicates we should be in input mode — otherwise
+	// a stored value of "Other" (the literal string) would be wiped to empty.
+	var relSelFinal = document.getElementById('relationship');
+	if (relSelFinal && relSelFinal.tagName === 'SELECT' && relSelFinal.value === 'Other' && !showDropdown && storedRel !== 'Other') {
+		relationshipToInput('');
+	}
+	var lwSelFinal = document.getElementById('liveWith');
+	var lwDetailsRowFinal = document.getElementById('liveWithDetailsRow');
+	if (lwSelFinal && lwDetailsRowFinal) {
+		lwDetailsRowFinal.style.display = (lwSelFinal.value === 'No 否') ? '' : 'none';
+	}
+});
+</script>
+
+	<h1><font face="Helvetica"></font><center>Demographic Information Update</center></h1>
+
+
+  	&nbsp;&nbsp;&nbsp;&nbsp;
+  	<h3><center><font color=#848484><p><i>Once you have completed the information below,
+scroll down to the bottom of the page and click "SUBMIT" <br>信息填写完整后，请点击页面下方 “SUBMIT” 完成提交<br></i></p></font></center></h3>
+ 	<p></p>
+  <!-- title -->
+~[if#isstudent.isstudent]
+<table style="width:850" border="0" cellspacing="" cellpadding="4" align="center">
+	<tr align="center">
+		<td>Your account does not allow access to this page.</td>
+	</tr>
+</table>
+[else#isstudent]
+~[if#parentverify.~([Students]parent_verify)=1]
+
+</center></b></font><br>[/if#parentverify]
+
+  <font face="Helvetica"></font><div id="demographic-update">
+    <!-- start parent content-->
+<!--    <form action="changesrecorded.html" method="POST" id="demographic-update" class="noSubmitLoading" onSubmit="setParentVerified();">  -->
+	<form action="changesrecorded.html" method="POSt" id='demographic-updatet' class="noSubmitLoading" onsubmit="return checkFilled()">
+
+
+
+ <!--   Re-Enrollment Section -->
+
+	<!--Paste TO HERE for ReEnrollment-->
+
+  <!--  <p><h2>Re-Enrollment</h2></p> -->
+
+	<!--Paste TO HERE for ReEnrollment-->    
+<!--	
+    <div id="returnsem"> 
+	    <table width="850" border="0" cellspacing="0" cellpadding="4">
+	    	<tr bgcolor="#edf3fe">
+	    		<td width="750" class="bold">2021/22学年留校就读确认 Re-enrollment confirmation for the 2021/22 school year</b></td>
+	    		<td width="50"></td>
+	    		<td width="50"></td>
+	     </tr>
+	    	<tr bgcolor="#edf3fe">
+		    	<td width="750"  class="">
+		    	    <label><input name="[01]parent_returning_next_semester" type="radio" value="Yes" id="radioschool" onclick="checksub()"/>是，2021/22学年，经过慎重考虑，我们会继续在包校就读，请为我的孩子预留2021/22学年名额。我们郑重承诺我们会根据包校的缴费安排及时付款。 Yes. My child will continue studying at YK Pao School for the 2021/22 school year. Please reserve a place for my child. We agree to submit the fee payment as required by the school.</label> 
+		    	</td>
+		    	<td width="50"></td>
+		    	<td width="50"></td>
+	    	</tr>
+	    	<tr bgcolor="#edf3fe">
+		    	<td width="750"  class="">
+		    	    <label><input name="[01]parent_returning_next_semester" type="radio" value="No" id="radioschool" onclick="checksub()"/>否，2021/22学年，我们不会继续在包校就读。 No. My child will be leaving YK Pao School at the end of the 2020/21 school year.</label> 
+		    	</td>
+		    	<td width="50"></td>
+		    	<td width="50"></td>
+	    	</tr>
+	        </table>
+	   <table width="850" border="0" cellspacing="0" cellpadding="4">
+	    	<tr bgcolor="#edf3fe">
+	    		<td width="750" class="bold">如包校在2021年3月5日未收到您的确认，也将被视为放弃2021/22学年的学位，包校有权将该学生的入学名额提供给等候名单上的学生或其他申请人。If your re-enrollment confirmation is not received by March 5th, 2021, the School considers your child as having withdrawn from the 2021/22 school year and may offer his/her place to a student on the waiting list.
+</b></td>
+	    		<td width="50"></td>
+	    		<td width="50"></td>
+	        </tr>
+	    	<tr bgcolor="#edf3fe">
+                <td width="750" class=""><label><input type="checkbox"  id="ckp1" onclick="checksub()">我已了解  I agree</label></td>
+	    		<td width="50"></td>
+	    		<td width="50"></td>
+	    	</tr>
+	   </table>
+	   <table width="850" border="0" cellspacing="0" cellpadding="4">
+	    	<tr bgcolor="#edf3fe">
+	    		<td width="750" class="bold">对于签署此确认并选择留校就读的家庭，如因任何原因最终没有在2021/22学年第一学期入学，家长和/或监护人将在包校留下不诚信记录 。 Please note that the above student and their respective parents and/or guardians will be considered “not in good standing” by the School if they withdraw from Pao School in the first semester of the 2021/22 school year after having signed this confirmation of re-enrollment.  </b></td>
+	    		<td width="50"></td>
+	    		<td width="50"></td>
+	        </tr>
+	    	<tr bgcolor="#edf3fe">
+                <td width="750" class=""><label><input type="checkbox"  id="ckp2" onclick="checksub()">我已了解  I agree</label></td>
+	    		<td width="50"></td>
+	    		<td width="50"></td>
+	    	</tr>
+	   </table>
+	   <table width="850" border="0" cellspacing="0" cellpadding="4">
+	    	<tr bgcolor="#edf3fe">
+	    		<td width="750" class="bold">我已经仔细阅读并同意此确认书上的所有条款。 I acknowledge and agree to the above terms of the Re-enrollment Confirmation</b></td>
+	    		<td width="50"></td>
+	    		<td width="50"></td>
+	        </tr>
+	    	<tr bgcolor="#edf3fe">
+                <td width="750" class=""><label><input type="checkbox"  id="ckp3" onclick="checksub()">我已了解  I agree</label></td>
+	    		<td width="50"></td>
+	    		<td width="50"></td>
+	    	</tr>
+	   </table>
+	<br></br>
+-->
+	<!--class="no-bullets"-->
+	
+	<!--CUT TO HERE AND PASTE TO HERE-->
+
+
+	<p><h2>Update Demographic Information</h2></p>
+	<p>YK Pao School is required to have accurate and up to date information at all times regarding every student. Please assist us by verifying all records are correct for your family. <i>Please be aware that at any time you may update demographic information through your PowerSchool Parent Portal.</i> For accuracy of data, this is the only acceptable method for modifying records. Changes are not allowed in person, by phone, or email.</p>
+	<p>Once submitted, please allow up to 3 business days for the information to be approved and processed. Some fields may require verification with proof of legal documents. If this is the case, you may be contacted to provide a copy of the necessary documents by our Student Affairs Office.</p>
+	<p>为了确保每位学生在包校信息系统中的个人信息及时有效，现请大家协助核实相关信息。请知晓如果信息需要修改，您需要登录PowerSchool家长门户网站进行相关操作，为了保证信息的准确度，学校将不接受电话和邮件的方式申请。</p>
+	<p>您递交修改信息的申请后，我们将在3个工作日内审核并更新。某些个人信息的更新修改需要提供相关法律文件证明，学生处老师会与您联系！</p>
+	
+
+
+	<table style="margin:15px" border="0" cellspacing="4"  align="left">
+		<tr bgcolor="white"><tr align="center">
+			<td colspan="3"><b>For any questions please contact the Student Affairs Office 如有任何问题，请联系学生处:</b></td>
+		</tr>
+		<tr>	
+			<td width="50" class="bold">Email:</td>
+			<td width="50"><b><a href="mailto:stuoffice@ykpaoschool.cn">stuoffice@ykpaoschool.cn</a></b></td>
+		</tr>
+		<tr>
+			<td width="50" class="bold">Primary School 小学校区:</td>
+			<td width="50"><b>(86) 21-61671999  ext.8104</b></td>
+		</tr>
+		<tr>
+			<td width="50" class="bold">Middle School 初中校区:</td>
+			<td width="50"><b>(86) 21-61671999  ext.8104</b>
+		</tr>
+		<tr>
+			<td width="50" class="bold">High School 高中校区:</td>
+			<td width="50"><b>(86) 21-61671999  ext.8105</b></td>
+		</tr>
+	</table>
+
+	<p>Please click the link in the form below to upload relevant documents</p>
+	<p>请使用下面的表单链接提交相应的证件文件</p>
+
+	<p><a href="https://jinshuju.net/f/m6ghzZ" target="">Click here to upload documents 点击本链接提交文件</a></p>
+</div>
+	
+<br></br>
+
+<div id="Student">
+
+	<table width="850" border="0" cellspacing="0" cellpadding="4">
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Student 学生</h3></td>
+		</tr>
+		<tr bgcolor="#edf3fe">
+			<td width="300" class="bold"></td>
+			<td width="300"><b>Currently on Record 目前在校信息</b></td>
+			<td width="250"><b>Submit Updated Information 信息补充或更新</b></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Student's Name 姓名</td>
+			<td width="300" id="lock1">~([Students]lastfirst)</td>
+			<td width="250"></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">YKPAO Student Number 学号</td>
+			<td width="300" id="lock2">~([Students]Student_Number)</td>
+			<td width="250"></td>
+		</tr>
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Chinese Name 中文名</td>
+			<td width="300" id="lock3x">~([Students]Stu_Chinese_Name)</td>
+			<!-- <td width="250"><input type="text"  name="" value="" size="25" /></td>	-->
+			<td width="250" style="color:black">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td>
+		</tr>
+<!--
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Pinyin Firstname 名字拼音</td>
+			<td width="300" class="slock" id="lock3">~([Students]PinYin__Firstname)</td>
+			<td width="250"><input class="slock3" type="text"  name="[01]parent_PinYin_Firstname" value="" size="25" /></td>
+		</tr>
+-->
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Preferred English Name 英文名</td>
+			<td width="300" id="lock4">~([Students]preferred__name)</td>
+			<td width="250" style="color:black">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Nationality 国籍/地区</td>
+			<td width="300" id="lock5">~([Students]Nationality)</td>
+			<td width="250" style="color:black">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td>
+		</tr>
+		
+		<!-- Guardian and Student Relationship -->
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Guardian and Student Relationship 监护人与学生关系</h3></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Guardian and Student Relationship 监护人与学生关系</td>
+			<td width="300" id="lockRelationship">~([01]Relationship)</td>
+			<td width="250"><select class="slockRelationship" id="relationship" name="[01]Relationship" onchange="onRelationshipChange()">
+			    <option value=""></option>
+				<option value="父母 Father and Mother">父母 Father and Mother</option>
+				<option value="父亲 Father">父亲 Father</option>
+				<option value="母亲 Mother">母亲 Mother</option>
+				<option value="Other">其他 Other</option>
+			</select>
+			<!-- Hidden mirror: PowerSchool's submit handler ignores dynamically-created inputs,
+			     so the dynamic input's value is mirrored into this static hidden field.
+			     Disabled by default; enabled only while the dynamic input is visible. -->
+			<input type="hidden" id="relationshipMirror" name="[01]Relationship" value="" disabled></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Live With 是否同住</td>
+			<td width="300" id="lockLiveWith">~([01]Live_With_Guardian)</td>
+			<td width="250"><select class="slockLiveWith" id="liveWith" name="[01]Live_With_Guardian" onchange="toggleLiveWithDetails()">
+			    <option value=""></option>
+				<option value="Yes 是">Yes 是</option>
+				<option value="No 否">No 否</option>
+			</select></td>
+		</tr>
+		
+		<tr bgcolor="#ECF6CE" id="liveWithDetailsRow" style="display:none;">
+			<td width="300" class="bold">Live With Details 具体同住情况</td>
+			<td width="300" id="lockLiveWithDetails">~([01]Live_With_Details)</td>
+			<td width="250"><input class="slockLiveWithDetails" type="text" id="liveWithDetails" name="[01]Live_With_Details" value="" size="40"/></td>
+		</tr>
+
+		<!-- Mother -->
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Mother 母亲</h3></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Name 姓名</td>
+			<td width="300" id="lock6">~([Students]Mother)</td>
+			<td width="250" style="color:black">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Nationality 国籍/地区</td>
+			<td width="300" id="lock7">~([Students]Mother_Nationality)</td>
+			<td width="250" style="color:black">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td>
+		</tr>
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Place of Birth 出生地</td>
+			<td width="300"  class="slock" id="lock8">~([01]parent_mother_birthplace)</td>
+			<td width="250"><select class="slock8" onchange="print_country('state',this.selectedIndex);" id="country0" name="[01]parent_mother_birthplace"></select><script language="javascript">print_country("country0");</script></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Language 第一语言</td>
+			<td width="300"  class="slock" id="lock9">~([01]parent_Mother_Language)</td>
+			<td width="250"><select class="slock9" onchange="print_lang('lang',this.selectedIndex);" id="lang0" name="[01]parent_Mother_Language"></select><script language="javascript">print_lang("lang0");</script></td>
+		</tr>
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Occupational Status 企业性质</td>
+			<td width="300"  class="slock" id="lock10">~([01]parent_Mother_Occ_Status)</td>
+			<td width="250"><select class="slock10" onchange="print_occstatus('occstatus',this.selectedIndex);" id="occstatus0" name="[01]parent_Mother_Occ_Status"></select><script language="javascript">print_occstatus("occstatus0");</script></td>
+		</tr>
+
+		<!--<tr bgcolor="#F5FBEG">-->
+		<!--	<td width="300" class="bold">Primary Business or Industry 公司行业类型</td>-->
+		<!--	<td width="300"  class="slock" id="lock12">~([Students]Mother_Business)</td>-->
+		<!--	<td width="250"><select class="slock12" onchange="print_company('company',this.selectedIndex);" id="company0" name="[01]parent_Mother_Business"></select><script language="javascript">print_company("company0");</script></td>-->
+		<!--</tr>-->
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Employer 公司</td>
+			<td width="300"  class="slock" id="lock13">~([01]parent_Mother_Employer)</td>
+			<td width="250"><input class="slock13" type="text"  name="[01]parent_Mother_Employer" value="" size="25"/></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Position 职位</td>
+			<td width="300"  class="slock" id="lock14">~([01]parent_mother_position)</td>
+			<td width="250"><input class="slock14" type="text"  name="[01]parent_mother_position" value="" size="25"/>  </td>
+		</tr>
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Position Category 职位性质</td>
+			<td width="300"  class="slock" id="lock15">~([01]parent_Mother_Position_Cat)</td>
+			<td width="250"><select class="slock15" onchange="print_positioncat('position_cat',this.selectedIndex);" id="positioncat0" name="[01]parent_Mother_Position_Cat"></select><script language="javascript">print_positioncat("positioncat0");</script></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Company Place of Registration 公司注册地</td>
+			<td width="300"  class="slock" id="lock16">~([1]parent_mother_co_place_of_reg)</td>
+			<td width="250"><select class="slock16" onchange="print_district('district',this.selectedIndex);" id="district0" name="[1]parent_mother_co_place_of_reg"></select>
+			<script language="javascript">print_district("district0");</script></td>
+		</tr>
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Office Location 办公地点</td>
+			<td width="300"  class="slock" id="lock17">~([1]parent_mother_office_location)</td>
+			<td width="250"><select class="slock17" onchange="print_district('district',this.selectedIndex);" id="district1" name="[1]parent_mother_office_location"></select>
+			<script language="javascript">print_district("district1");</script></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Graduated Institution 获得最高学历的毕业院校</td>
+			<td width="300"  class="slock" id="lock18">~([1]parent_mother_grad_institute)</td>
+			<td width="250"><input class="slock18" type="text"  name="[1]parent_mother_grad_institute" value="" size="25"/></td>
+		</tr>
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Highest Degree Obtained 最高学历</td>
+			<td width="300"  class="slock" id="lock19">~([01]parent_mother_degree)</td>
+			<td width="250"><select class="slock19" onchange="print_degree('degree',this.selectedIndex);" id="degree0" name="[01]parent_mother_degree"></select>
+			<script language="javascript">print_degree("degree0");</script></td>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<div style="margin: 15px 15px; font-size: 12px;">
+ <p><center><i><font color=#848484>If the questions do not apply to your situation, please simply type <b>N/A</b>. If you prefer not to share this information with us, please type <b>PRIVATE</b>. Do realize, YK Pao School take your data very seriously and  is committed to keeping your information safe and confidential.请注意有些信息为必填项，如有不适用信息可选择填写<b>N/A</b>，如不方便提供可选择填写<b>PRIVATE</b>。包校非常重视保护您所提交的所有信息的安全。</font></i></center></p>
+</div>
+			</td>
+		</tr>
+		<!-- Father -->
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Father 父亲</h3></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Name 姓名</td>
+			<td width="300" id="lock20">~([Students]Father)</td>
+			<td width="250" style="color:black">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Nationality 国籍</td>
+			<td width="300" id="lock21">~([Students]Father_Nationality)</td>
+			<td width="250" style="color:black">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td>
+			
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Place of Birth 出生地</td>
+			<td width="300"  class="slock" id="lock22">~([01]parent_father_birthplace))</td>
+			<td width="250"><select class="slock22" onchange="print_country('state',this.selectedIndex);" id="country1" name="[01]parent_father_birthplace"></select><script language="javascript">print_country("country1");</script></td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Language 第一语言</td>
+			<td width="300"  class="slock" id="lock23">~([01]parent_Father_Language)</td>
+			<td width="250"><select class="slock23" onchange="print_lang('lang',this.selectedIndex);" id="lang1" name="[01]parent_Father_Language"></select><script language="javascript">print_lang("lang1");</script></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Occupational Status 企业性质</td>
+			<td width="300"  class="slock" id="lock11">~([01]parent_Father_Occ_Status)</td>
+			<td width="250"><select class="slock11" onchange="print_occstatus('occstatus',this.selectedIndex);" id="occstatus1" name="[01]parent_Father_Occ_Status"></select><script language="javascript">print_occstatus("occstatus1");</script></td>
+		</tr>
+		<!--<tr bgcolor="#F5FBEG">-->
+		<!--	<td width="300" class="bold">Primary Business or Industry 公司行业类型</td>-->
+		<!--	<td width="300"  class="slock" id="lock24">~([Students]Father_Business)</td>-->
+	 <!--    	<td width="250"><select class="slock24" onchange="print_company('company',this.selectedIndex);" id="company1" name="[01]parent_Father_Business"></select><script language="javascript">print_company("company1");</script></td>-->
+		<!--</tr>-->
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Employer 公司</td>
+			<td width="300"  class="slock" id="lock25">~([01]parent_Father_Employer)</td>
+			<td width="250"><input class="slock25" type="text"  name="[01]parent_Father_Employer" value="" size="25"/></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Position 职位</td>
+			<td width="300"  class="slock" id="lock26">~([1]parent_father_position)</td>
+			<td width="250"><input class="slock26" type="text"  name="[1]parent_father_position" value="" size="25"/></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Position Category 职位性质</td>
+			<td width="300"  class="slock" id="lock15">~([01]parent_Father_Position_Cat)</td>
+			<td width="250"><select class="slock15" onchange="print_positioncat('position_cat',this.selectedIndex);" id="positioncat1" name="[01]parent_Father_Position_Cat"></select><script language="javascript">print_positioncat("positioncat1");</script></td>
+		</tr>
+
+			<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Company Place of Registration 公司注册地</td>
+			<td width="300"  class="slock" id="lock28">~([1]parent_father_co_place_of_reg)</td>
+			<td width="250"><select class="slock28" onchange="print_district('district',this.selectedIndex);" id="district3" name="[1]parent_father_co_place_of_reg"></select><script language="javascript">print_district("district3");</script></td>
+		</tr>
+
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Office Location 办公地点</td>
+			<td width="300"  class="slock" id="lock29">~([1]parent_father_office_location)</td>
+			<td width="250"><select class="slock29" onchange="print_district('district',this.selectedIndex);" id="district4" name="[1]parent_father_office_location"></select><script language="javascript">print_district("district4");</script></td>
+		</tr>
+
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Graduating Institution 获得最高学历的毕业院校</td>
+			<td width="300"  class="slock" id="lock30">~([1]parent_father_grad_institute)</td>
+			<td width="250"><input class="slock30" type="text"  name="[1]parent_father_grad_institute" value="" size="25"/></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Highest Degree Obtained 最高学历</td>
+			<td width="300"  class="slock" id="lock31">~([1]parent_father_degree)</td>
+			<td width="250"><select class="slock31" onchange="print_degree('degree',this.selectedIndex);" id="degree1" name="[1]parent_father_degree"></select><script language="javascript">print_degree("degree1");</script></td>
+		</tr>
+		<tr>
+			<td colspan="3">
+				<div style="margin: 15px 15px; font-size: 12px;">
+ <p><center><i><font color=#848484>If the questions do not apply to your situation, please simply type <b>N/A</b>. If you prefer not to share this information with us, please type <b>PRIVATE</b>. Do realize, YK Pao School take your data very seriously and  is committed to keeping your information safe and confidential.请注意有些信息为必填项，如有不适用信息可选择填写<b>N/A</b>，如不方便提供可选择填写<b>PRIVATE</b>。包校非常重视保护您所提交的所有信息的安全。</font></i></center></p>
+</div>
+			</td>
+		</tr>
+		<!--Residential Address -->
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Current Residential Address 目前居住地址</h3></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold"> Address  地址</td>
+			<td width="300"  class="slock" id="subId28">~([01]parent_Residential_Address)</td>
+			<td width="250"><input class="ssubId28" type="text"  name="[01]parent_Residential_Address" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Jiedao 街道</td> 
+			<td width="300"  class="slock" id="lock55">~([01]parent_Residential_Jiedao)</td>
+			<td width="250"><input class="slock55" type="text"  name="[01]parent_Residential_Jiedao" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">District 区</td> 
+			<td width="300"  class="slock" id="lock56">~([01]parent_Residential_District)</td>
+			<td width="250"><select class="slock56" onchange="print_district('district',this.selectedIndex);" id="district6" name="[1]parent_Residential_District"></select><script language="javascript">print_district("district6");</script></td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">City 市</td> 
+			<td width="300" class="slock" id="lock57">~([01]parent_Residential_City)</td>
+			<td width="250"><input class="slock57" type="text" name="[01]parent_Residential_City" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Province 省 </td>
+			<td width="300" class="slock" id="lock58">~([01]parent_Residential_Province)</td>
+	        <td width="250"><input class="slock58" type="text" name="[01]parent_Residential_Province" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Zip Code 邮编</td>
+			<td width="300" class="slock" id="lock59">~([01]parent_Residential_Zip)</td>
+			<td width="250"><input class="slock59" type="text" name="[01]parent_Residential_Zip" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Country/Area 国家/地区</td>
+			<td width="300" class="slock" id="subId29">~([01]parent_Residential_Country)</td>
+			<td width="250"><select class="ssubId29" onchange="print_state('state',this.selectedIndex);" id="rescountry" name="[01]parent_Residential_Country"></select><script language="javascript">print_country("rescountry");</script></td>
+		</tr>
+    	<tr bgcolor="#F5FBEG">
+    	    <!--<td colspan="3">-->
+    	    <!--    <label><input type="checkbox"  id="ckp4" onclick="displayRegAddress()">我有中国大陆地区户籍地址 I have registration address of China mainland</label>-->
+    	    <!--</td>-->
+    	    <td width="300" class="bold">Have registration address of China mainland? 有无中国大陆户籍地址？</td>
+                        <td width="300" class="slock" id="subId30">~([01]parent_Have_Reg_Address)</td>
+                        <td width="250"><select class="ssubId30" onchange="displayRegAddress()" id="regAddressHave" name="[01]parent_Have_Reg_Address">
+                            <option value></option>
+                            <option value="Yes 有">Yes 有</option>
+                            <option value="No 无">No 无</option>
+                        </select></td>
+    	</tr>
+	    <tr style="display:none" id="divAddressAct">
+	        <!--<td colspan="2"><label><input type="checkbox" id="ckHave" onclick="copyAddress()">我的户籍地址与居住地址一致。My registration address is the same as my residential address.</label></td>-->
+	    </tr>
+		
+		<!--Registration Address -->
+		<tr bgcolor="white" group="1">
+			<td colspan="3"><h3>Registration Address 户籍地址</h3></td>
+		</tr>
+		<tr bgcolor="#ECF6CE" group="1">
+			<td width="300" class="bold"> Address  地址</td>
+			<td width="300"  class="slock" id="subId18">~([01]parent_Registration_Address)</td>
+			<td width="250"><input class="ssubId18" type="text"  name="[01]parent_Registration_Address" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG" group="1">
+			<td width="300" class="bold">District 区</td> 
+			<td width="300"  class="slock" id="lock32">~([01]parent_Registration_District)</td>
+			<td width="250"><select class="slock32" onchange="print_district('district',this.selectedIndex);" id="district5" name="[1]parent_Registration_District"></select><script language="javascript">print_district("district5");</script></td>
+		</tr>
+		<tr bgcolor="#ECF6CE" group="1">
+			<td width="300" class="bold">City 市</td> 
+			<td width="300" class="slock" id="lock33">~([01]parent_Registration_City)</td>
+			<td width="250"><input class="slock33" type="text" name="[01]parent_Registration_City" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG" group="1">
+			<td width="300" class="bold">Province 省 </td>
+			<td width="300" class="slock" id="lock34">~([01]parent_Registration_Province)</td>
+	        <td width="250"><input class="slock34" type="text" name="[01]parent_Registration_Province" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE" group="1">
+			<td width="300" class="bold">Zip Code 邮编</td>
+			<td width="300" class="slock" id="lock35">~([01]parent_Registration_Zip)</td>
+			<td width="250"><input class="slock35" type="text" name="[01]parent_Registration_Zip" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG" group="1">
+			<td width="300" class="bold">Country/Area 国家/地区</td>
+			<td width="300" class="slock" id="subId12">~([01]parent_Registration_Country)</td>
+			<td width="250"><select class="ssubId12" onchange="print_state('state',this.selectedIndex);" id="country" name="[01]parent_Registration_Country"></select><script language="javascript">print_country("country");</script></td>
+		</tr>
+
+		<!-- Emergency  Contacts -->
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Emergency Contact 紧急联系</h3></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Contact 1 Full Name 联系人1：全名</td>
+			<td width="300" class="slock" id="lock37">~([01]parent_Emerg_Contact_1)</td>
+			<td width="250"><input class="slock37" type="text"  name="[01]parent_Emerg_Contact_1" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Contact 1 Phone Number 联系电话</td>
+			<td width="300" class="slock" id="lock38">~([01]parent_Emerg_Phone_1)</td>
+			<td width="250"><input class="slock38" type="text" name="[01]parent_Emerg_Phone_1" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Contact 2 Full Name 联系人2：全名</td>
+			<td width="300" class="slock" id="subId1">~([01]parent_Emerg_Contact_2)</td>
+			<td width="250"><input class="ssubId1" type="text" name="[01]parent_Emerg_Contact_2" value="" size="25" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Contact 2 Phone Number 联系电话</td>
+			<td width="300" class="slock" id="lock40">~([01]parent_Emerg_Phone_2)</td>
+			<td width="250"><input class="slock40" type="text" name="[01]parent_Emerg_Phone_2" value="" size="25" /></td>
+		</tr>
+		
+		<!-- ID & Passport -->
+
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Passport or Chinese ID 护照或身份证号</h3></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Student Passport Name 护照名</td>
+			<td width="300" id="lock41">~([Students]Passport_Name)</td>
+			<td width="250" style="color:black" rowspan="8">Please visit the link above to update your information. <br> 请访问页面上方的链接来修改您的信息。</td> 
+			<!--<td width="250"><input type="text"  name="[01]parent_Passport_Name value="" size="25" /></td> -->
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Student Passport Number 护照号</td>
+			<td width="300" id="lock42">~([Students]Passport_Number)</td>
+			<!-- <td width="250"><input type="text"  name="[01]parent_Passport_Number" value="" size="25" /></td> -->	
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Student Chinese ID 身份证号码</td>
+			<td width="300" id="lock43">~([Students]Government_ID)</td>
+			<!-- <td width="250"><input type="text"  name="[01]parent_Government_ID" value="" size="25" /></td> -->
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">XueJi Number 学籍号</td>
+			<td width="300" id="xueji">~([Students]U_Students_Extension.XueJi_Number2)</td>
+		</tr>	
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Mother's Passport Number 母亲护照号码</td>
+			<td width="300" id="lock44">~([Students]Mother_Passport)</td>
+			<!-- <td width="250"><input type="text"  name="[01]parent_Mother_Passport" value="" size="25" /></td> -->
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Mother's Chinese ID 母亲身份证号码<br></td>	
+			<td width="300" id="lock45">~([Students]Mother_Government_ID)</td>
+			<!-- <td width="250"><input type="text"  name="[01]parent_Mother_Government_ID" value="" size="25" /></td> -->
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Father's Passport Number 父亲护照号码</td>
+			<td width="300" id="lock46">~([Students]Father_Passport)</td>
+			<!-- <td width="250"><input type="text"  name="[01]parent_Father_Passport" value="" size="25" /></td> -->
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Father's Chinese ID 父亲身份证号码</td>	
+			<td width="300" id="slock41">~([Students]Father_Government_ID)</td>
+			<!-- <td width="250"><input type="text"  name="[01]parent_Father_Government_ID" value="" size="25" /></td> -->
+
+		</tr>
+		
+		
+		<!-- Contact Information -->
+		<tr bgcolor="white">
+			<td colspan="3"><h3>Contact Information 联系方法</h3></td>
+		</tr>
+<!--
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Home Phone 家庭电话</td>
+			<td width="300"  class="slock" id="lock47">~([Students]Home_Phone)</td>
+			<td width="250"><input class="slock47" type="text"  name="[01]parent_home_phone" value="" size="25" onchange="isLen11(this) && isNumber(this)" /></td>
+		</tr>
+-->
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Father's Mobile 父亲手机号</td>
+			<td width="300" class="slock" id="lock48">~([01]fatherdayphone)</td>
+	        <td width="250"><input class="slock48" type="text"  name="[01]fatherdayphone" value="" size="25" onchange="isLen11(this) && isNumber(this) && isBlan(this)" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Mother's Mobile 母亲手机号</td>
+			<td width="300" class="slock" id="lock49">~([01]motherdayphone)</td>
+			<td width="250"><input class="slock49" type="text"  name="[01]motherdayphone" value="" size="25" onchange="isLen11(this) && isNumber(this)" /></td>
+		</tr>
+		<!--
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Father's Second Number on File 父亲的第二个联系电话</td>
+			<td width="300" id="lock50">~([Students]Father_home_phone)</td>
+			<td width="250"><input type="text"  name="[01]parent_father_home_phone" value="" size="25" onchange="isLen11(this) && isNumber(this)" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Mother's Second Number on File 母亲的第二个联系电话</td>
+			<td width="300" id="lock51">~([Students]Mother_home_phone)</td>
+		    <td width="250"><input type="text"  name="[01]parent_mother_home_phone" value="" size="25" onchange="isLen11(this) && isNumber(this)" /></td>
+		</tr>
+		<tr bgcolor="#F5FBEG">
+			<td width="300" class="bold">Guardian or Additional Number 监护人联系电话或额外可联系的电话</td>
+			<td width="300" class="slock" id="lock52">~([Students]guardiandayphone)</td>
+		    <td width="250"><input class="slock52" type="text"  name="[01]parent_guardiandayphone" value="" size="25" onchange="isLen11(this) && isNumber(this)" /></td>
+		</tr>
+-->
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Father's Email 父亲电子邮箱</td>
+			<td width="300" class="slock" id="lock53">~([01]Father_Email)</td>
+			<td width="250"><input class="slock53" type="text"  name="[01]Father_Email" value="" size="25" onchange="isEMailAddr(this)" /></td>
+		</tr>
+		<tr bgcolor="F5FBEG">
+			<td width="300" class="bold">Mother's Email 母亲电子邮箱</td>
+			<td width="300" class="slock" id="lock54">~([01]MOTHERS_EMAIL_ADDRESS)</td>
+			<td width="250"><input class="slock54" type="text"  name="[01]MOTHERS_EMAIL_ADDRESS" value="" size="25" onchange="isEMailAddr(this)" /></td>
+		</tr>
+		<tr bgcolor="#ECF6CE">
+			<td width="300" class="bold">Email address associated with this parent portal account. Parent portal用户名</td>
+			<td width="300" id="lock53">~[tlist_sql;
+											select DISTINCT PCAS_EmailContact.EmailAddress 
+											from guardian 
+												join pcas_account on guardian.accountidentifier = pcas_account.pcas_accounttoken
+    											join pcas_emailcontact on pcas_account.PCAS_AccountID = pcas_emailcontact.pcas_accountid
+											where guardian.guardianid='~[x:userid;guardianid]';]~(email)
+										[/tlist_sql]</td>
+			<td width="250">Please change this under the Account Preferences link on the left menu above.
+			如需更改用户名，请点击左边导航栏中“AccountPreferences 账户首选项”进行更新</td> 
+		</tr>
+	</table>
+</div>
+
+<div id="buttoncontrol" class="button-row"> 
+	<center>
+
+		<!--<label><input name="[01]parent_returning_next_semester" type="radio" value="Yes" id="radioschool" onclick="checksub()"/>是，2021/22学年，经过慎重考虑，我们会继续在包校就读，请为我的孩子预留2021/22学年名额。我们郑重承诺我们会根据包校的缴费安排及时付款。 Yes. My child will continue studying at YK Pao School for the 2021/22 school year. Please reserve a place for my child. We agree to submit the fee payment as required by the school.</label> -->
+
+		<label><input id="qr1" type="radio" name="[01]parentdemographic_updated" value="Yes" />I have updated the information above and uploaded relevant documents.If any information changes in the future, I will promptly inform the school. 我已更新以上信息，并已上传相关证件。若后续有信息变更，将及时告知学校。</label><br>
+		<label><input id="qr1" type="radio" name="[01]parentdemographic_updated" value="No" />I confirm that the information above is correct and is not needed to be updated. If any information changes in the future, I will promptly inform the school. 我确认以上信息正确无误，无需更新。若后续有信息变更，将及时告知学校。</label>
+		<p>
+		<input type="hidden" name="[01]parent_verify" id="parentverified" value="1" />
+		<input type="hidden" name="[01]guardianemail" id="guardianemail" value="" />
+		<input type="hidden" name="ac" value="autosendupdate" />
+<!-- 	<button type="submit" value="Submit" onClick="setParentVerified();" disabled="disabled" id="submitdis1">Submit</button>  -->
+		<button type="submit" value="Submit" onClick="setParentVerified();">Submit</button>
+		</p>
+	</center>
+	<p></p>
+	<p></p>
+	[/if#isstudent]
+</div>
+~[if#isguardian.isguardianAndSSOEnabled]
+	<script type="text/javascript">
+		$j('document').ready(function(){
+		var $j = jQuery.noConflict();
+		var currentTime = new Date();
+		var monthChanged = currentTime.getMonth() + 1;
+		var dayChanged = currentTime.getDate();
+		var yearChanged = currentTime.getFullYear();
+		var trimUser = $j.trim($j('#parentName').val());
+		document.getElementById("whoChanged").value = trimUser + ' on ' + monthChanged + '-' + dayChanged + '-' + yearChanged;
+		}); 
+	</script>
+	<input type="hidden" id="whoChanged" name="[01]parent_wholastchanged" value="">
+[/if#isguardian]
+</form>
+</div>
+<!-- end parent content -->
+
+<!-- end of title and student content -->
+</div>
+<input id="activeNav" type="hidden" value="#btn-demographic-update" />
+<input id="activePageVersion" type="hidden" value="3.3.1+"/>
+~[wc:guardian_footer]
+</body></html>

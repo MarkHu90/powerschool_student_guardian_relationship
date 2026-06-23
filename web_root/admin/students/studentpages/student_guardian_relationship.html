@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Guardian and Student Relationship</title>
+~[wc:commonscripts]
+<link href="/images/css/screen.css" rel="stylesheet" media="screen">
+<link href="/images/css/print.css" rel="stylesheet" media="print">
+
+<script type="text/javascript">
+
+// The <select> and the <textarea> are two UI views onto a single [01]relationship field.
+// The hidden mirror below is the only element that actually carries that name on submit;
+// syncRelationshipMirror() keeps it in sync with whichever view is active.
+function syncRelationshipMirror() {
+	var sel = document.getElementById('relationship');
+	var textarea = document.getElementById('relationshipOther');
+	var mirror = document.getElementById('relationshipMirror');
+	if (!mirror) { return; }
+	mirror.value = (sel && sel.value === '其他 Other')
+		? (textarea ? textarea.value : '')
+		: (sel ? sel.value : '');
+}
+
+function toggleOtherRelationship() {
+	var sel = document.getElementById('relationship');
+	var otherRow = document.getElementById('relationshipOtherRow');
+	var textarea = document.getElementById('relationshipOther');
+	if (sel.value === '其他 Other') {
+		otherRow.style.display = '';
+	} else {
+		otherRow.style.display = 'none';
+		if (textarea) { textarea.value = ''; }   // switching away from "其他" clears stale custom value
+	}
+	syncRelationshipMirror();
+}
+
+function toggleLiveWithDetails() {
+	var sel = document.getElementById('liveWith');
+	var detailsRow = document.getElementById('liveWithDetailsRow');
+	if (!sel || !detailsRow) { return; }
+	if (sel.value === 'No 否') {
+		detailsRow.style.display = '';
+	} else {
+		detailsRow.style.display = 'none';
+		var detailsInput = document.getElementById('liveWithDetails');
+		if (detailsInput) { detailsInput.value = ''; }
+	}
+}
+
+$j(document).ready(function () {
+	// Pre-load relationship: any stored value not matching one of the 3 main options
+	// means "其他 Other" was previously used — show the textarea pre-filled with it.
+	var storedRel = ("~([01]relationship)").replace(/&nbsp;/ig, "").trim();
+	var relSel = document.getElementById('relationship');
+	var relOther = document.getElementById('relationshipOther');
+	var relOtherRow = document.getElementById('relationshipOtherRow');
+	var relMainOptions = ["父母 Father and Mother", "父亲 Father", "母亲 Mother"];
+	var relIsMainOption = (relMainOptions.indexOf(storedRel) !== -1);
+
+	if (relIsMainOption) {
+		// Pre-select the matching option in the dropdown
+		for (var i = 0; i < relSel.options.length; i++) {
+			if (relSel.options[i].value === storedRel) {
+				relSel.options[i].selected = true;
+				break;
+			}
+		}
+		if (relOtherRow) { relOtherRow.style.display = 'none'; }
+		if (relOther) { relOther.value = ''; }
+	} else if (storedRel !== '') {
+		// Custom "其他" value: select "其他 Other" and pre-fill the textarea with the stored value
+		if (relSel) { relSel.value = '其他 Other'; }
+		if (relOtherRow) { relOtherRow.style.display = ''; }
+		if (relOther) { relOther.value = storedRel; }
+	} else {
+		// Empty: leave select at its default, hide textarea
+		if (relOtherRow) { relOtherRow.style.display = 'none'; }
+		if (relOther) { relOther.value = ''; }
+	}
+	syncRelationshipMirror();
+
+	// Live With: pre-select the stored string value; set the Details row visibility to match.
+	var storedLiveWith = ("~([01]Live_With_Guardian)").replace(/&nbsp;/ig, "").trim();
+	var lwSel = document.getElementById('liveWith');
+	var lwDetailsRow = document.getElementById('liveWithDetailsRow');
+	if (lwSel) {
+		var lwMatched = false;
+		for (var j = 0; j < lwSel.options.length; j++) {
+			if (lwSel.options[j].value === storedLiveWith) {
+				lwSel.options[j].selected = true;
+				lwMatched = true;
+				break;
+			}
+		}
+		if (lwMatched) { lwSel.value = storedLiveWith; }
+	}
+	if (lwSel && lwDetailsRow) {
+		lwDetailsRow.style.display = (lwSel.value === 'No 否') ? '' : 'none';
+	}
+});
+</script>
+</head>
+
+<body>
+~[wc:admin_header_frame_css]
+<!-- breadcrumb start -->
+<a href="/admin/home.html" target="_top">Start Page</a> &gt; <a href="/admin/students/home.html?selectstudent=nosearch" target="_top">Student Selection</a> &gt; Guardian and Student Relationship
+<!-- breadcrumb end -->
+~[wc:admin_navigation_frame_css]
+~[wc:changes_saved_or_deleted_header]
+<!-- start of main menu and content -->
+~[wc:title_student_begin_css]Guardian and Student Relationship~[wc:title_student_end_css]
+<form action="/~[self]~[if.gpv.recordSaved=]&recordSaved=1[/if]" method="POST">
+<!-- start of content area -->
+<div class="box-round">
+<table border="0" cellspacing="0" cellpadding="4" width="100%">
+
+	<tr bgcolor="#6495ED">
+		<td class="bold" colspan="2"><font color="#ffffff">Relationship Information</font></td>
+	</tr>
+
+	<tr bgcolor="#edf3fe">
+		<td class="bold" width="30%">Relationship</td>
+		<td>
+			<select id="relationship" onchange="toggleOtherRelationship();">
+				<option value=""></option>
+				<option value="父母 Father and Mother">父母 Father and Mother</option>
+				<option value="父亲 Father">父亲 Father</option>
+				<option value="母亲 Mother">母亲 Mother</option>
+				<option value="其他 Other">其他 Other</option>
+			</select>
+			<!-- Hidden mirror: the only [01]relationship field submitted with the form.
+			     syncRelationshipMirror() keeps its value aligned with whichever view
+			     (the <select> or the <textarea> below) is currently active. -->
+			<input type="hidden" id="relationshipMirror" name="[01]relationship" value="">
+		</td>
+	</tr>
+
+	<tr bgcolor="#edf3fe" id="relationshipOtherRow" style="display:none;">
+		<td class="bold" width="30%">&nbsp;&nbsp;&nbsp;If Other, please specify</td>
+		<td><textarea id="relationshipOther" rows="3" cols="40" oninput="syncRelationshipMirror();"></textarea></td>
+	</tr>
+
+	<tr bgcolor="#ccc">
+		<td class="bold" width="30%">Does this person live with the student?</td>
+		<td>
+			<select class="slockLiveWith" id="liveWith" name="[01]Live_With_Guardian" onchange="toggleLiveWithDetails()">
+				<option value=""></option>
+				<option value="Yes 是">Yes 是</option>
+				<option value="No 否">No 否</option>
+			</select>
+		</td>
+	</tr>
+
+	<tr bgcolor="#ccc" id="liveWithDetailsRow" style="display:none;">
+		<td class="bold" width="30%">&nbsp;&nbsp;&nbsp;If No, please specify</td>
+		<td><textarea class="slockLiveWithDetails" name="[01]Live_With_Details" id="liveWithDetails" rows="3" cols="40"></textarea></td>
+	</tr>
+
+</table>
+<div class="button-row"><input type="hidden" name="ac" value="prim">~[submitbutton]</div>
+</div>
+</form>
+<!-- end of content area -->
+~[wc:admin_footer_frame_css]
+</body>
+</html>
